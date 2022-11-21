@@ -1,0 +1,25 @@
+{
+  "name": "notes-apigraphql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.1.1",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "graphql": "^16.6.0",
+    "mongoose": "^6.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
