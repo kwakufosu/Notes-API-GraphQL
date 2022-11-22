@@ -8,9 +8,8 @@ const http = require('http');
 const cors = require('cors');
 const { json } = require('body-parser');
 const resolvers = require('./resolvers/resolvers');
-const typeDefs = require('./schema/schema.graphql');
+const typeDefs = require('./schema/schema');
 require('./db/mongoose');
-
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -38,7 +37,7 @@ const startServer = async () => {
     json(),
 
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req }) => req,
     })
   );
 

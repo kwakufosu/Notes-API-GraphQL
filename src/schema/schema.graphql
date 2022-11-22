@@ -1,6 +1,0 @@
-const typeDefs = `#graphql
-    type Query{
-        greeting:String
-    }
-`;
-module.exports = typeDefs;
