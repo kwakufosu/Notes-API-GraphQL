@@ -8,8 +8,9 @@ type Mutation {
   createUser(input: createUserInput): UserDetails
   updateCurrentUser(input: updateUser): User
   logoutCurrentUser(_id: ID!): User
-  logoutAll(_id:ID!):User
-  deleteCurrentUser(_id:ID!):User
+  logoutAll(_id: ID!): User
+  deleteCurrentUser(_id: ID!): User
+  createNote(input: noteInput): Note
 }
 
 type UserDetails {
@@ -20,6 +21,15 @@ type UserDetails {
 type User {
   name: String
   email: String
+}
+
+type Note {
+  note: String
+  owner_id: ID
+}
+
+input noteInput {
+  note: String
 }
 
 input loginInput {

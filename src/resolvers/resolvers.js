@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Note = require('../models/note');
 const auth = require('../middleware/auth');
 const bcrypt = require('bcrypt');
 const resolvers = {
@@ -89,13 +90,25 @@ const resolvers = {
     deleteCurrentUser: async function (_, { _id }, { token }) {
       const { user } = await auth(token);
       const deletedUser = user;
-      if (!user && !(user._id.toString() === _id)) {
+      if (!(user._id.toString() === _id)) {
         return;
       }
 
       user.remove();
 
       return deletedUser;
+    },
+
+    createNote: async function (_, { input }, { token }) {
+      const { user } = await auth(token);
+          
+      const note = new Note({
+        ...input,
+        owner_id: user._id,
+      });
+
+      await note.save();
+      return note;
     },
   },
 };
