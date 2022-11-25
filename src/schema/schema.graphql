@@ -13,6 +13,8 @@ type Mutation {
   logoutAll(_id: ID!): User
   deleteCurrentUser(_id: ID!): User
   createNote(input: noteInput): Note
+  deleteUserNoteByID(_id: ID!): Note
+  deleteAllNotesByUser:[Note]
 }
 
 type UserDetails {

@@ -35,6 +35,10 @@ const resolvers = {
       const { user } = await auth(token);
 
       const note = await Note.findOne({ _id: id, owner_id: user.id });
+
+      if (!note) {
+        return 'No note found';
+      }
       return note;
     },
   },
@@ -126,6 +130,31 @@ const resolvers = {
 
       await note.save();
       return note;
+    },
+
+    deleteUserNoteByID: async function (_, { _id }, { token }) {
+      const { user } = await auth(token);
+
+      const deletedNote = await Note.findOneAndDelete({
+        _id,
+        owner_id: user._id,
+      });
+
+      if (!deletedNote) {
+        return 'No note found. Hence nothing was deleted';
+      }
+
+      return deletedNote;
+    },
+
+    deleteAllNotesByUser: async function (_, input, { token }) {
+      const { user } = await auth(token);
+      let deletedNotes = await Note.find({ owner_id: user._id });
+      await Note.deleteMany({ owner_id: user._id });
+      if (!deletedNotes) {
+        return 'No notes found. Hence nothing was deleted';
+      }
+      return deletedNotes;
     },
   },
 };
