@@ -20,6 +20,23 @@ const resolvers = {
     getCurrentUserDetails: async function (root, _, { token }) {
       return ({ user } = await auth(token));
     },
+
+    fetchNotesByAUser: async function (root, _, { token }) {
+      const { user } = await auth(token);
+
+      const notes = await Note.find({ owner_id: user._id });
+      if (!notes) {
+        return 'No notes found';
+      }
+      return notes;
+    },
+
+    fetchUserNoteByID: async function (root, { id }, { token }) {
+      const { user } = await auth(token);
+
+      const note = await Note.findOne({ _id: id, owner_id: user.id });
+      return note;
+    },
   },
 
   Mutation: {
@@ -101,7 +118,7 @@ const resolvers = {
 
     createNote: async function (_, { input }, { token }) {
       const { user } = await auth(token);
-          
+
       const note = new Note({
         ...input,
         owner_id: user._id,

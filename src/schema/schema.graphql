@@ -2,6 +2,8 @@ type Query {
   greeting: String
   login(input: loginInput!): UserDetails
   getCurrentUserDetails: User
+  fetchNotesByAUser: [Note]
+  fetchUserNoteByID(id: ID): Note
 }
 
 type Mutation {
