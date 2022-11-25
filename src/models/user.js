@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Note = require('./note');
 require('dotenv').config();
 
 const userSchema = new mongoose.Schema({
@@ -77,6 +78,14 @@ userSchema.pre('save', async function (next) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();
+});
+
+userSchema.pre('remove', async function (next) {
+  const user = this;
+  console.log(user)
+  await Note.deleteMany({ owner_id: user._id });
+
+  next()
 });
 
 const User = mongoose.model('User', userSchema);
