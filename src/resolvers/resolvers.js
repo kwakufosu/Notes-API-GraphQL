@@ -156,6 +156,18 @@ const resolvers = {
       }
       return deletedNotes;
     },
+
+    updateNote: async function (_, { _id, input }, { token }) {
+      const { user } = await auth(token);
+      const updatedNote = await Note.findOneAndUpdate(
+        { owner_id: user._id, _id: _id },
+        { note:input },
+        { new: true, runValidators: true }
+      );
+
+      await updatedNote.save();
+      return updatedNote;
+    },
   },
 };
 

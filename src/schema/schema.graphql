@@ -13,8 +13,9 @@ type Mutation {
   logoutAll(_id: ID!): User
   deleteCurrentUser(_id: ID!): User
   createNote(input: noteInput): Note
+  updateNote(_id:ID,input: String!): Note
   deleteUserNoteByID(_id: ID!): Note
-  deleteAllNotesByUser:[Note]
+  deleteAllNotesByUser: [Note]
 }
 
 type UserDetails {
