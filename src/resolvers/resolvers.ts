@@ -167,8 +167,8 @@ const resolvers = {
       if (!(user._id.toString() === _id)) {
         return;
       }
-      await Note.deleteMany({ owner_id: user._id });
-      user.remove();
+    
+      await user.remove();
 
       return deletedUser;
     },

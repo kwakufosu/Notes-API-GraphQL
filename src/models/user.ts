@@ -1,7 +1,7 @@
 import { HydratedDocument, Model, model, Schema, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-const Note = require('./note');
+import Note from './note';
 require('dotenv').config({ path: __dirname + '../../.env' });
 
 interface userTok {
@@ -28,40 +28,45 @@ interface UserModel extends Model<IUser, {}, IUserMethods> {
     password: string
   ): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
-const schema = new Schema<IUser, UserModel, IUserMethods>({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 8,
-    validate(value: string) {
-      if (value.toLowerCase().includes('password')) {
-        throw new Error('Password must not include "password"');
-      } else if (value.length < 8) {
-        throw new Error('Password must be at least 8 characters ');
-      }
+const schema = new Schema<IUser, UserModel, IUserMethods>(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-  },
-
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 8,
+      validate(value: string) {
+        if (value.toLowerCase().includes('password')) {
+          throw new Error('Password must not include "password"');
+        } else if (value.length < 8) {
+          throw new Error('Password must be at least 8 characters ');
+        }
       },
     },
-  ],
-});
+
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 schema.methods.generateAuthToken = async function () {
   const user = this;
@@ -76,7 +81,7 @@ schema.methods.generateAuthToken = async function () {
     process.env.SECRET
   );
 
-  user.tokens = user.tokens.concat({token});
+  user.tokens = user.tokens.concat({ token });
 
   await user.save();
   return token;
@@ -107,13 +112,13 @@ schema.pre('save', async function (next) {
   next();
 });
 
-// userSchema.pre('remove', async function (this: UserBaseDocument, next) {
-//   const user = this;
+schema.pre('remove', async function (this: IUser, next) {
+  const user = this;
 
-//   await Note.deleteMany({ owner_id: user._id });
+  await Note.deleteMany({ owner_id: user._id });
 
-//   next();
-// });
+  next();
+});
 
 const User = model<IUser, UserModel>('User', schema);
 

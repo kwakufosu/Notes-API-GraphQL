@@ -120,8 +120,7 @@ const resolvers = {
                 if (!(user._id.toString() === _id)) {
                     return;
                 }
-                yield note_1.default.deleteMany({ owner_id: user._id });
-                user.remove();
+                yield user.remove();
                 return deletedUser;
             });
         },

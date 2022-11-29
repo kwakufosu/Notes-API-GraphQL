@@ -31,11 +31,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const bcrypt = __importStar(require("bcrypt"));
 const jwt = __importStar(require("jsonwebtoken"));
-const Note = require('./note');
+const note_1 = __importDefault(require("./note"));
 require('dotenv').config({ path: __dirname + '../../.env' });
 const schema = new mongoose_1.Schema({
     name: {
@@ -70,6 +73,8 @@ const schema = new mongoose_1.Schema({
             },
         },
     ],
+}, {
+    timestamps: true,
 });
 schema.methods.generateAuthToken = function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -107,10 +112,12 @@ schema.pre('save', function (next) {
         next();
     });
 });
-// userSchema.pre('remove', async function (this: UserBaseDocument, next) {
-//   const user = this;
-//   await Note.deleteMany({ owner_id: user._id });
-//   next();
-// });
+schema.pre('remove', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = this;
+        yield note_1.default.deleteMany({ owner_id: user._id });
+        next();
+    });
+});
 const User = (0, mongoose_1.model)('User', schema);
 exports.default = User;

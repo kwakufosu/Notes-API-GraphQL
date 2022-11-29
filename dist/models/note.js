@@ -11,14 +11,6 @@ const noteModel = new mongoose_1.default.Schema({
         ref: 'User',
         required: true,
     },
-});
-// const Note = mongoose.model<Note> ('Note', {
-//   note: { type:String,required: true} ,
-//   owner_id: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'User',
-//     required: true,
-//   },
-// });
+}, { timestamps: true });
 const Note = mongoose_1.default.model('Note', noteModel);
 exports.default = Note;
