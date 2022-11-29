@@ -1,0 +1,56 @@
+type Query {
+  greeting: String
+  login(input: loginInput!): UserDetails
+  getCurrentUserDetails: User
+  fetchNotesByAUser: [Note]
+  fetchUserNoteByID(id: ID): Note
+}
+
+type Mutation {
+  createUser(input: createUserInput): UserDetails
+  updateCurrentUser(input: updateUser): User
+  logoutCurrentUser(_id: ID!): User
+  logoutAll(_id: ID!): User
+  deleteCurrentUser(_id: ID!): User
+  createNote(input: noteInput): Note
+  updateNote(_id:ID,input: String!): Note
+  deleteUserNoteByID(_id: ID!): Note
+  deleteAllNotesByUser: [Note]
+}
+
+type UserDetails {
+  user: User!
+  token: String!
+}
+
+type User {
+  name: String
+  email: String
+}
+
+type Note {
+  note: String
+  owner_id: ID
+}
+
+input noteInput {
+  note: String
+}
+
+input loginInput {
+  email: String!
+  password: String!
+}
+
+input createUserInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+input updateUser {
+  _id: ID!
+  name: String
+  email: String
+  password: String
+}

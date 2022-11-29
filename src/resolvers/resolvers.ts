@@ -1,11 +1,34 @@
-const User = require('../models/user');
-const Note = require('../models/note');
-const auth = require('../middleware/auth');
-const bcrypt = require('bcrypt');
+import { Types } from 'mongoose';
+import User from '../models/user';
+
+import Note from '../models/note';
+import auth from '../middleware/auth';
+import bcrypt from 'bcrypt';
+
+interface Input {
+  email: string;
+  password: string;
+}
+
+interface userFace {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface userTok {
+  token: string;
+}
+
+interface noteInput {
+  note: String;
+}
+
 const resolvers = {
   Query: {
     greeting: () => 'Hello world',
-    login: async function (_, { input }, context) {
+    login: async function (_: string, { input }: { input: Input }) {
       const { email, password } = input;
 
       try {
@@ -17,11 +40,20 @@ const resolvers = {
         throw new Error('Invalid credentials');
       }
     },
-    getCurrentUserDetails: async function (root, _, { token }) {
-      return ({ user } = await auth(token));
+    getCurrentUserDetails: async function (
+      root: any,
+      _: any,
+      { token }: { token: string }
+    ) {
+      const { user } = await auth(token);
+      return user;
     },
 
-    fetchNotesByAUser: async function (root, _, { token }) {
+    fetchNotesByAUser: async function (
+      root: any,
+      _: object,
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
 
       const notes = await Note.find({ owner_id: user._id });
@@ -31,7 +63,11 @@ const resolvers = {
       return notes;
     },
 
-    fetchUserNoteByID: async function (root, { id }, { token }) {
+    fetchUserNoteByID: async function (
+      root: any,
+      { id }: { id: string },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
 
       const note = await Note.findOne({ _id: id, owner_id: user.id });
@@ -44,11 +80,12 @@ const resolvers = {
   },
 
   Mutation: {
-    createUser: async function (_, { input }) {
+    createUser: async function (_: any, { input }: { input: userFace }) {
       try {
         const user = new User(input);
 
         const token = await user.generateAuthToken();
+
         await user.save();
 
         return { user, token };
@@ -58,14 +95,18 @@ const resolvers = {
       }
     },
 
-    updateCurrentUser: async function (_, { input }, { token }) {
+    updateCurrentUser: async function (
+      _: any,
+      { input }: { input: userFace },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
       const userID = user._id.toString();
 
       if (input.password) {
         input.password = await bcrypt.hash(input.password, 8);
       }
-      if (!user && !(userID === input._id)) {
+      if (!user && !(userID === input._id.toString())) {
         return;
       }
       const updatedUser = await User.findOneAndUpdate(
@@ -74,19 +115,23 @@ const resolvers = {
         { new: true, runValidators: true }
       );
 
-      await updatedUser.save();
+      await updatedUser?.save();
 
       return updatedUser;
     },
 
-    logoutCurrentUser: async function (_, { _id }, { token }) {
+    logoutCurrentUser: async function (
+      _: any,
+      { _id }: { _id: string },
+      { token }: { token: string }
+    ) {
       const { user, tokenOnly } = await auth(token);
 
-      if (!user && !(user._id.toString() === _id)) {
+      if (!(user._id.toString() === _id)) {
         return;
       }
 
-      user.tokens = user.tokens.filter((userToken) => {
+      user.tokens = user.tokens.filter((userToken: userTok) => {
         return userToken.token !== tokenOnly;
       });
 
@@ -95,10 +140,14 @@ const resolvers = {
       return user;
     },
 
-    logoutAll: async function (_, { _id }, { token }) {
+    logoutAll: async function (
+      _: any,
+      { _id }: { _id: string },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
 
-      if (!user && !(user._id.toString() === _id)) {
+      if (!(user._id.toString() === _id)) {
         return;
       }
 
@@ -108,19 +157,27 @@ const resolvers = {
       return user;
     },
 
-    deleteCurrentUser: async function (_, { _id }, { token }) {
+    deleteCurrentUser: async function (
+      _: any,
+      { _id }: { _id: string },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
       const deletedUser = user;
       if (!(user._id.toString() === _id)) {
         return;
       }
-
+      await Note.deleteMany({ owner_id: user._id });
       user.remove();
 
       return deletedUser;
     },
 
-    createNote: async function (_, { input }, { token }) {
+    createNote: async function (
+      _: any,
+      { input }: { input: noteInput },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
 
       const note = new Note({
@@ -132,7 +189,11 @@ const resolvers = {
       return note;
     },
 
-    deleteUserNoteByID: async function (_, { _id }, { token }) {
+    deleteUserNoteByID: async function (
+      _: any,
+      { _id }: { _id: string },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
 
       const deletedNote = await Note.findOneAndDelete({
@@ -147,7 +208,11 @@ const resolvers = {
       return deletedNote;
     },
 
-    deleteAllNotesByUser: async function (_, input, { token }) {
+    deleteAllNotesByUser: async function (
+      _: any,
+      input: any,
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
       let deletedNotes = await Note.find({ owner_id: user._id });
       await Note.deleteMany({ owner_id: user._id });
@@ -157,18 +222,22 @@ const resolvers = {
       return deletedNotes;
     },
 
-    updateNote: async function (_, { _id, input }, { token }) {
+    updateNote: async function (
+      _: any,
+      { _id, input }: { _id: string; input: string },
+      { token }: { token: string }
+    ) {
       const { user } = await auth(token);
       const updatedNote = await Note.findOneAndUpdate(
         { owner_id: user._id, _id: _id },
-        { note:input },
+        { note: input },
         { new: true, runValidators: true }
       );
 
-      await updatedNote.save();
+      await updatedNote?.save();
       return updatedNote;
     },
   },
 };
 
-module.exports = resolvers;
+export default resolvers;
