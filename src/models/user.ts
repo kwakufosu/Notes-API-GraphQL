@@ -2,7 +2,8 @@ import { HydratedDocument, Model, model, Schema, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import Note from './note';
-require('dotenv').config({ path: __dirname + '../../.env' });
+import path from 'path'
+require('dotenv').config(path.join{ path: __dirname + '../../.env' });
 
 interface userTok {
   token: string;
